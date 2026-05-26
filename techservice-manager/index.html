@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechService Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ПП.02 Производственная практика</p>
+        <h1>TechService Manager</h1>
+        <p class="subtitle">Информационная система технического обслуживания оборудования</p>
+      </div>
+      <nav class="nav">
+        <button class="nav__item active" data-page="dashboard">Главная</button>
+        <button class="nav__item" data-page="clients">Клиенты</button>
+        <button class="nav__item" data-page="equipment">Оборудование</button>
+        <button class="nav__item" data-page="requests">Заявки</button>
+        <button class="nav__item" data-page="history">История</button>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section id="dashboard" class="page active">
+        <div class="hero card">
+          <div>
+            <p class="eyebrow">Рабочая версия системы</p>
+            <h2>Учёт клиентов, оборудования, заявок, статусов и взаимодействий</h2>
+            <p>
+              Данные сохраняются в SQLite. Можно заполнить демонстрационную базу, добавить
+              клиента, оборудование, создать заявку и изменить её статус.
+            </p>
+          </div>
+          <button id="seedButton" class="primary">Сбросить и заполнить базу</button>
+        </div>
+
+        <div class="stats">
+          <article class="stat card"><span>Клиенты</span><strong id="statClients">0</strong></article>
+          <article class="stat card"><span>Оборудование</span><strong id="statEquipment">0</strong></article>
+          <article class="stat card"><span>Заявки</span><strong id="statRequests">0</strong></article>
+          <article class="stat card"><span>Активные заявки</span><strong id="statActive">0</strong></article>
+          <article class="stat card"><span>Записи истории</span><strong id="statInteractions">0</strong></article>
+        </div>
+
+        <section class="card">
+          <h2>Последние заявки</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Заявка</th>
+                  <th>Клиент</th>
+                  <th>Приоритет</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="recentRequests"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="clients" class="page grid">
+        <form id="clientForm" class="card form">
+          <h2>Добавить клиента</h2>
+          <label>Название или ФИО<input name="name" required /></label>
+          <label>Телефон<input name="phone" required /></label>
+          <label>E-mail<input name="email" type="email" /></label>
+          <label>Адрес<input name="address" /></label>
+          <label>Примечание<textarea name="note"></textarea></label>
+          <button class="primary">Сохранить клиента</button>
+        </form>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Список клиентов</h2>
+            <form id="clientSearch" class="inline-form">
+              <input name="search" placeholder="Поиск по имени, телефону, e-mail" />
+              <button>Найти</button>
+            </form>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Клиент</th>
+                  <th>Телефон</th>
+                  <th>E-mail</th>
+                  <th>Адрес</th>
+                </tr>
+              </thead>
+              <tbody id="clientsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="equipment" class="page grid">
+        <form id="equipmentForm" class="card form">
+          <h2>Добавить оборудование</h2>
+          <label>Клиент<select name="client_id" required></select></label>
+          <label>Оборудование<input name="title" required placeholder="Например, сервер Dell" /></label>
+          <label>Серийный номер<input name="serial_number" /></label>
+          <label>Местоположение<input name="location" /></label>
+          <button class="primary">Сохранить оборудование</button>
+        </form>
+
+        <section class="card">
+          <h2>Оборудование клиентов</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Оборудование</th>
+                  <th>Клиент</th>
+                  <th>Серийный номер</th>
+                  <th>Место</th>
+                </tr>
+              </thead>
+              <tbody id="equipmentTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="requests" class="page grid">
+        <form id="requestForm" class="card form">
+          <h2>Создать заявку</h2>
+          <label>Клиент<select name="client_id" required></select></label>
+          <label>Оборудование<select name="equipment_id"></select></label>
+          <label>Название заявки<input name="title" required /></label>
+          <label>Описание<textarea name="description"></textarea></label>
+          <label>Приоритет
+            <select name="priority">
+              <option>Низкий</option>
+              <option selected>Средний</option>
+              <option>Высокий</option>
+              <option>Критический</option>
+            </select>
+          </label>
+          <label>Статус
+            <select name="status">
+              <option>Новая</option>
+              <option>В работе</option>
+              <option>Ожидает клиента</option>
+              <option>Закрыта</option>
+            </select>
+          </label>
+          <label>Исполнитель<input name="engineer" placeholder="Иванов И.И." /></label>
+          <label>Срок выполнения<input name="deadline" type="date" /></label>
+          <button class="primary">Сохранить заявку</button>
+        </form>
+
+        <section class="card">
+          <div class="section-head">
+            <h2>Список заявок</h2>
+            <form id="statusFilter" class="inline-form">
+              <select name="status">
+                <option value="">Все статусы</option>
+                <option>Новая</option>
+                <option>В работе</option>
+                <option>Ожидает клиента</option>
+                <option>Закрыта</option>
+                <option>Отменена</option>
+              </select>
+              <button>Фильтр</button>
+            </form>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Заявка</th>
+                  <th>Клиент</th>
+                  <th>Оборудование</th>
+                  <th>Статус</th>
+                  <th>Сменить статус</th>
+                </tr>
+              </thead>
+              <tbody id="requestsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="history" class="page grid">
+        <form id="interactionForm" class="card form">
+          <h2>Добавить взаимодействие</h2>
+          <label>Клиент<select name="client_id" required></select></label>
+          <label>Заявка<select name="request_id"></select></label>
+          <label>Тип взаимодействия
+            <select name="interaction_type">
+              <option>Звонок</option>
+              <option>Письмо</option>
+              <option>Комментарий инженера</option>
+              <option>Выезд</option>
+            </select>
+          </label>
+          <label>Ответственный<input name="responsible" /></label>
+          <label>Содержание<textarea name="content" required></textarea></label>
+          <button class="primary">Сохранить запись</button>
+        </form>
+
+        <section class="card">
+          <h2>История взаимодействий</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Клиент</th>
+                  <th>Заявка</th>
+                  <th>Тип</th>
+                  <th>Ответственный</th>
+                  <th>Содержание</th>
+                </tr>
+              </thead>
+              <tbody id="interactionsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+    <script src="app.js"></script>
+  </body>
+</html>
